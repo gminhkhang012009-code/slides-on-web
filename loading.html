@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Loading – KHTN 6A10</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Be+Vietnam+Pro:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000;
+    --track: #1a1a1a;
+    --fill: #fff;
+    --text: #fff;
+    --dur: 3.2s;            /* một chu kỳ của thanh loading và của chữ "- tổ 4" */
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; background: var(--bg); }
+  body {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 22px;
+    font-family: "Be Vietnam Pro", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  .label {
+    display: flex; align-items: baseline; justify-content: center;
+    color: var(--text);
+    font-family: "Bricolage Grotesque", "Be Vietnam Pro", "Segoe UI", Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(30px, 9vw, 56px);
+    letter-spacing: -.01em;
+    white-space: nowrap;
+  }
+  /* "- tổ 4": gần load xong thì lướt ra từ trái, giữ một lúc rồi thụt lại vào trong 6A10 */
+  .team {
+    display: grid;
+    grid-template-columns: 0fr;
+    opacity: 0;
+    filter: blur(6px);
+    transform: translateX(-28px);
+    animation: team var(--dur) infinite;
+  }
+  .team span {
+    display: block; min-width: 0; overflow: hidden; white-space: nowrap;
+    padding-left: .45em;
+  }
+  @keyframes team {
+    0%, 36% {
+      grid-template-columns: 0fr; opacity: 0; filter: blur(6px); transform: translateX(-28px);
+      animation-timing-function: cubic-bezier(.22,1,.36,1);
+    }
+    60%, 78% {
+      grid-template-columns: 1fr; opacity: 1; filter: blur(0); transform: translateX(0);
+      animation-timing-function: cubic-bezier(.55,0,.35,1);
+    }
+    100% {
+      grid-template-columns: 0fr; opacity: 0; filter: blur(6px); transform: translateX(-28px);
+    }
+  }
+  .bar {
+    position: relative;
+    width: min(92vw, 760px);
+    height: 4px;
+    border-radius: 4px;
+    background: var(--track);
+    overflow: hidden;
+  }
+  /* kiểu Google (Material): đoạn trắng bo tròn hai đầu, dãn dài ra rồi co lại, có đoạn thứ hai đuổi theo */
+  .fill {
+    position: absolute; top: 0; bottom: 0;
+    background: #fff;
+    forced-color-adjust: none;
+    border-radius: 4px;
+    will-change: left, right;
+  }
+  .f1 { animation: grow1 var(--dur) cubic-bezier(.65,.815,.735,.395) infinite; }
+  .f2 { animation: grow2 var(--dur) cubic-bezier(.165,.84,.44,1) 1.75s infinite; }
+  @keyframes grow1 {
+    0%   { left: -35%;  right: 100%; }
+    60%  { left: 100%;  right: -60%; }
+    100% { left: 100%;  right: -60%; }
+  }
+  @keyframes grow2 {
+    0%   { left: -200%; right: 100%; }
+    60%  { left: 107%;  right: -8%; }
+    100% { left: 107%;  right: -8%; }
+  }
+  .hint {
+    color: #bdbdbd;
+    font-weight: 500;
+    font-size: clamp(15px, 3.8vw, 20px);
+    letter-spacing: .08em;
+  }
+  .hint i { font-style: normal; animation: dot 1.4s infinite; }
+  .hint i:nth-child(2) { animation-delay: .2s; }
+  .hint i:nth-child(3) { animation-delay: .4s; }
+  @keyframes dot {
+    0%, 60%, 100% { opacity: .25; }
+    30% { opacity: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .team { animation-duration: calc(var(--dur) * 2); }
+  }
+</style>
+</head>
+<body>
+  <div class="label">
+    <span>KHTN 6A10</span>
+    <span class="team"><span>- tổ 4</span></span>
+  </div>
+  <div class="bar" role="progressbar" aria-label="Đang tải"><div class="fill f1"></div><div class="fill f2"></div></div>
+  <div class="hint">Loading<i>.</i><i>.</i><i>.</i></div>
+  <!-- Tải xong: dùng location.href = 'trang-chinh.html' để chuyển trang -->
+</body>
+</html>
