@@ -58,6 +58,7 @@
     animation: pillBg .7s ease-out both;
   }
   .pill svg, .pill small { animation: fadeIn .7s ease-out both; }
+  .pill > span { view-transition-name: khtn-brand; }
   .pill svg { width: 18px; height: 18px; flex: none; }
   .pill small { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--dim); letter-spacing: 0; }
   @keyframes pillBg { from { background: transparent; border-color: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; } }
@@ -130,6 +131,17 @@
   @keyframes dot { 0%, 60%, 100% { opacity: .25; } 30% { opacity: 1; } }
   .ld.out .bar, .ld.out .hint { opacity: 0; }
   .ld.still .fill, .ld.still .hint i { animation-play-state: paused; }
+
+
+  /* Chỉ bổ sung chuyển cảnh giữa các trang cùng website. */
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 420ms;
+      animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+    }
+  }
 </style>
 </head>
 <body>
@@ -137,7 +149,7 @@
 
   <div class="pill glass">
     <svg viewBox="0 0 24 24" fill="none" stroke="#5ee7ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg>
-    <span>KHTN 6A10</span><small>tổ 4</small>
+    <span>KHTN 6A10</span><small>tổ 3</small>
   </div>
 
   <main>
@@ -157,7 +169,7 @@
   </main>
 
   <div class="ld" id="ld" aria-hidden="true">
-    <div class="label" id="ldLabel"><span>KHTN 6A10</span><span class="team" id="ldTeam"><span>- tổ 4</span></span></div>
+    <div class="label" id="ldLabel"><span>KHTN 6A10</span><span class="team" id="ldTeam"><span>- tổ 3</span></span></div>
     <div class="bar"><div class="fill f1"></div><div class="fill f2"></div></div>
     <div class="hint">Loading slides<i>.</i><i>.</i><i>.</i></div>
   </div>
@@ -173,6 +185,11 @@
 
   function start() {
     if (started) return; started = true;
+
+    // Chuyển tên hiệu ứng từ logo cố định sang logo đang bay; không đổi animation gốc.
+    var brandText = document.querySelector('.pill > span');
+    brandText.style.viewTransitionName = 'none';
+    label.children[0].style.viewTransitionName = 'khtn-brand';
 
     // giao diện ui mờ đi, nền ui giữ nguyên
     document.querySelector('main').animate({ opacity: [1, 0] }, { duration: 500, fill: 'forwards' });
@@ -202,7 +219,7 @@
     setTimeout(function () { ld.classList.remove('out'); }, 1500);      // thanh loading + chữ "Loading slides" hiện ra
     setTimeout(toCenter, 4300);                                         // thanh + chữ Loading biến mất, chữ vào giữa và to lên
     setTimeout(function () { ld.classList.add('still'); }, 4800);
-    setTimeout(function () { team.classList.add('show'); }, 5500);      // "- tổ 4" lướt ra
+    setTimeout(function () { team.classList.add('show'); }, 5500);      // "- tổ 3" lướt ra
     setTimeout(function () { team.classList.remove('show'); }, 6800);   // thụt lại vào trong (một lần)
     setTimeout(fly, 7800);                                              // thu nhỏ bay lên góc trái rồi sang slide
   }
