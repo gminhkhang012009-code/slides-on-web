@@ -13,6 +13,10 @@
     --bg: #000;
     --track: #1a1a1a;
     --text: #fff;
+    --dim: #9aa4c4;
+    --edge: rgba(255,255,255,.14);
+    --head: "Bricolage Grotesque", "Be Vietnam Pro", "Segoe UI", Arial, sans-serif;
+    --body: "Be Vietnam Pro", "Segoe UI", Arial, sans-serif;
     --dur: 3.2s;            /* một chu kỳ chạy của thanh loading */
     box-sizing: border-box;
   }
@@ -108,9 +112,29 @@
   /* gần load xong: thanh loading và chữ Loading biến mất */
   body.out .bar, body.out .hint { opacity: 0; }
   body.still .fill, body.still .hint i { animation-play-state: paused; }
+  /* viên KHTN 6A10 vô hình: CÙNG CSS với ui.html và slide.html, chỉ dùng để đo vị trí + kích cỡ đích của chữ */
+  .glass { border: 1px solid var(--edge); border-radius: 20px; }
+  .pill {
+    position: fixed; z-index: 5;
+    top: 14px; left: 14px;
+    display: flex; align-items: center; gap: 8px;
+    height: 38px; padding: 0 14px 0 10px; line-height: 18px;   /* VIÊN NÀY GIỐNG HỆT ở index.html, ui.html, slide.html: không sửa riêng từng file */
+    border-radius: 999px;
+    font-family: var(--head); font-weight: 800; font-size: 15px; letter-spacing: -.01em;
+    animation: pillBg .7s ease-out both;
+  }
+  .pill svg, .pill small { animation: fadeIn .7s ease-out both; }
+  .pill svg { width: 18px; height: 18px; flex: none; }
+  .pill small { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--dim); letter-spacing: 0; }
+  .pill.ref { visibility: hidden; pointer-events: none; animation: none; }
+  .pill.ref svg, .pill.ref small { animation: none; }
 </style>
 </head>
 <body>
+  <div class="pill glass ref" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#5ee7ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg>
+    <span>KHTN 6A10</span><small>tổ 4</small>
+  </div>
   <div class="label">
     <span class="logo" id="logo">KHTN 6A10</span>
     <span class="team" id="team"><span>- tổ 4</span></span>
@@ -155,9 +179,10 @@
     var w = r.width / BIG;
     var cx = r.left + r.width / 2;                   // tâm ngang (không đổi)
     var cy = r.top + r.height / 2 - ty;              // tâm dọc lúc chưa dịch
-    var s = 15 / parseFloat(getComputedStyle(label).fontSize);
-    var dx = (50 + w * s / 2) - cx;
-    var dy = 31 - cy;
+    var t = document.querySelector('.pill > span').getBoundingClientRect();   // chữ KHTN 6A10 thật ở góc (cùng CSS với ui.html)
+    var s = t.width / w;
+    var dx = (t.left + t.width / 2) - cx;
+    var dy = (t.top + t.height / 2) - cy;
 
     label.style.transition = 'transform 1.5s cubic-bezier(.65,0,.35,1)';
     requestAnimationFrame(function () {
