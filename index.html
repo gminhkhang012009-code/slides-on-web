@@ -12,15 +12,12 @@
   :root {
     --bg: #000;
     --track: #1a1a1a;
-    --fill: #fff;
     --text: #fff;
-    --dur: 3.2s;            /* một chu kỳ của thanh loading và của chữ "- tổ 4" */
+    --dur: 3.2s;            /* một chu kỳ chạy của thanh loading */
     box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
   }
   * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; background: var(--bg); }
+  html, body { height: 100%; margin: 0; background: var(--bg); overflow: hidden; }
   body {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -35,32 +32,34 @@
     font-size: clamp(30px, 9vw, 56px);
     letter-spacing: -.01em;
     white-space: nowrap;
+    transform-origin: 50% 50%;
+    will-change: transform;
+    backface-visibility: hidden;
   }
-  /* "- tổ 4": gần load xong thì lướt ra từ trái, giữ một lúc rồi thụt lại vào trong 6A10 */
+  /* cả cụm chữ (.label) sẽ: đi vào chính giữa + to lên, rồi thu nhỏ bay lên góc trái */
+  .logo { display: inline-block; -webkit-font-smoothing: antialiased; }
+
+  /* "- tổ 4": mặc định thụt vào trong. Thêm class .show thì lướt ra từ trái, bỏ .show thì thụt lại */
   .team {
     display: grid;
     grid-template-columns: 0fr;
     opacity: 0;
-    filter: blur(6px);
     transform: translateX(-28px);
-    animation: team var(--dur) infinite;
+    transition: grid-template-columns .9s cubic-bezier(.55,0,.35,1),
+                opacity .7s ease,
+                transform .9s cubic-bezier(.55,0,.35,1);
+  }
+  .team.show {
+    grid-template-columns: 1fr;
+    opacity: 1;
+    transform: translateX(0);
+    transition: grid-template-columns 1.1s cubic-bezier(.22,1,.36,1),
+                opacity .9s ease-out,
+                transform 1.1s cubic-bezier(.22,1,.36,1);
   }
   .team span {
     display: block; min-width: 0; overflow: hidden; white-space: nowrap;
     padding-left: .45em;
-  }
-  @keyframes team {
-    0%, 36% {
-      grid-template-columns: 0fr; opacity: 0; filter: blur(6px); transform: translateX(-28px);
-      animation-timing-function: cubic-bezier(.22,1,.36,1);
-    }
-    60%, 78% {
-      grid-template-columns: 1fr; opacity: 1; filter: blur(0); transform: translateX(0);
-      animation-timing-function: cubic-bezier(.55,0,.35,1);
-    }
-    100% {
-      grid-template-columns: 0fr; opacity: 0; filter: blur(6px); transform: translateX(-28px);
-    }
   }
   .bar {
     position: relative;
@@ -69,6 +68,8 @@
     border-radius: 4px;
     background: var(--track);
     overflow: hidden;
+    contain: layout paint;
+    transition: opacity .5s ease;
   }
   /* kiểu Google (Material): đoạn trắng bo tròn hai đầu, dãn dài ra rồi co lại, có đoạn thứ hai đuổi theo */
   .fill {
@@ -95,6 +96,7 @@
     font-weight: 500;
     font-size: clamp(15px, 3.8vw, 20px);
     letter-spacing: .08em;
+    transition: opacity .5s ease;
   }
   .hint i { font-style: normal; animation: dot 1.4s infinite; }
   .hint i:nth-child(2) { animation-delay: .2s; }
@@ -103,18 +105,70 @@
     0%, 60%, 100% { opacity: .25; }
     30% { opacity: 1; }
   }
-  @media (prefers-reduced-motion: reduce) {
-    .team { animation-duration: calc(var(--dur) * 2); }
-  }
+  /* gần load xong: thanh loading và chữ Loading biến mất */
+  body.out .bar, body.out .hint { opacity: 0; }
+  body.still .fill, body.still .hint i { animation-play-state: paused; }
 </style>
 </head>
 <body>
   <div class="label">
-    <span>KHTN 6A10</span>
-    <span class="team"><span>- tổ 4</span></span>
+    <span class="logo" id="logo">KHTN 6A10</span>
+    <span class="team" id="team"><span>- tổ 4</span></span>
   </div>
   <div class="bar" role="progressbar" aria-label="Đang tải"><div class="fill f1"></div><div class="fill f2"></div></div>
   <div class="hint">Loading<i>.</i><i>.</i><i>.</i></div>
-  <!-- Tải xong: dùng location.href = 'trang-chinh.html' để chuyển trang -->
+
+<script>
+  var NEXT_PAGE = 'ui.html';   // trang giao diện chính
+
+  // Mốc thời gian (ms) tính từ lúc mở trang
+  var T_OUT  = 4200;   // thanh loading + chữ Loading biến mất, KHTN 6A10 đi vào chính giữa và to lên
+  var T_SHOW = 5400;   // "- tổ 4" lướt ra
+  var T_HIDE = 6700;   // "- tổ 4" thụt lại vào trong (chỉ một lần, không lặp)
+  var T_FLY  = 7700;   // KHTN 6A10 thu nhỏ bay lên góc trái, rồi chuyển sang ui.html
+  var BIG    = 1.15;   // độ to lên khi ở chính giữa
+
+  var body = document.body;
+  var label = document.querySelector('.label');
+  var team = document.getElementById('team');
+  var ty = 0;          // quãng đã dịch xuống/lên để vào chính giữa màn hình
+
+  setTimeout(toCenter, T_OUT);
+  setTimeout(function () { body.classList.add('still'); }, T_OUT + 500);
+  setTimeout(function () { team.classList.add('show'); }, T_SHOW);
+  setTimeout(function () { team.classList.remove('show'); }, T_HIDE);
+  setTimeout(fly, T_FLY);
+
+  function toCenter() {
+    body.classList.add('out');
+    var r = label.getBoundingClientRect();
+    ty = innerHeight / 2 - (r.top + r.height / 2);
+    label.style.transition = 'transform 1.1s cubic-bezier(.65,0,.35,1)';
+    requestAnimationFrame(function () {
+      label.style.transform = 'translate3d(0,' + ty + 'px,0) scale(' + BIG + ')';
+    });
+  }
+
+  function fly() {
+    // thu nhỏ về chữ 15px và bay về đúng vị trí KHTN 6A10 ở góc trái của ui.html
+    var r = label.getBoundingClientRect();           // đang ở giữa màn hình, đã to lên
+    var w = r.width / BIG;
+    var cx = r.left + r.width / 2;                   // tâm ngang (không đổi)
+    var cy = r.top + r.height / 2 - ty;              // tâm dọc lúc chưa dịch
+    var s = 15 / parseFloat(getComputedStyle(label).fontSize);
+    var dx = (50 + w * s / 2) - cx;
+    var dy = 31 - cy;
+
+    label.style.transition = 'transform 1.5s cubic-bezier(.65,0,.35,1)';
+    requestAnimationFrame(function () {
+      label.style.transform = 'translate3d(' + dx + 'px,' + dy + 'px,0) scale(' + s + ')';
+    });
+
+    var gone = false;
+    function next() { if (!gone) { gone = true; location.replace(NEXT_PAGE); } }
+    label.addEventListener('transitionend', function (e) { if (e.target === label) setTimeout(next, 120); });
+    setTimeout(next, 2200);   // dự phòng nếu transitionend không chạy
+  }
+</script>
 </body>
 </html>
