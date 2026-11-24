@@ -41,9 +41,9 @@
     backface-visibility: hidden;
   }
   /* cả cụm chữ (.label) sẽ: đi vào chính giữa + to lên, rồi thu nhỏ bay lên góc trái */
-  .logo { display: inline-block; -webkit-font-smoothing: antialiased; }
+  .logo { display: inline-block; -webkit-font-smoothing: antialiased; view-transition-name: khtn-brand; }
 
-  /* "- tổ 4": mặc định thụt vào trong. Thêm class .show thì lướt ra từ trái, bỏ .show thì thụt lại */
+  /* "- tổ 3": mặc định thụt vào trong. Thêm class .show thì lướt ra từ trái, bỏ .show thì thụt lại */
   .team {
     display: grid;
     grid-template-columns: 0fr;
@@ -128,16 +128,27 @@
   .pill small { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--dim); letter-spacing: 0; }
   .pill.ref { visibility: hidden; pointer-events: none; animation: none; }
   .pill.ref svg, .pill.ref small { animation: none; }
+
+
+  /* Chỉ bổ sung chuyển cảnh giữa các trang cùng website. */
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition { navigation: auto; }
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: 420ms;
+      animation-timing-function: cubic-bezier(.22, 1, .36, 1);
+    }
+  }
 </style>
 </head>
 <body>
   <div class="pill glass ref" aria-hidden="true">
     <svg viewBox="0 0 24 24" fill="none" stroke="#5ee7ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"/><path d="M7.5 15h9"/></svg>
-    <span>KHTN 6A10</span><small>tổ 4</small>
+    <span>KHTN 6A10</span><small>tổ 3</small>
   </div>
   <div class="label">
     <span class="logo" id="logo">KHTN 6A10</span>
-    <span class="team" id="team"><span>- tổ 4</span></span>
+    <span class="team" id="team"><span>- tổ 3</span></span>
   </div>
   <div class="bar" role="progressbar" aria-label="Đang tải"><div class="fill f1"></div><div class="fill f2"></div></div>
   <div class="hint">Loading<i>.</i><i>.</i><i>.</i></div>
@@ -147,8 +158,8 @@
 
   // Mốc thời gian (ms) tính từ lúc mở trang
   var T_OUT  = 4200;   // thanh loading + chữ Loading biến mất, KHTN 6A10 đi vào chính giữa và to lên
-  var T_SHOW = 5400;   // "- tổ 4" lướt ra
-  var T_HIDE = 6700;   // "- tổ 4" thụt lại vào trong (chỉ một lần, không lặp)
+  var T_SHOW = 5400;   // "- tổ 3" lướt ra
+  var T_HIDE = 6700;   // "- tổ 3" thụt lại vào trong (chỉ một lần, không lặp)
   var T_FLY  = 7700;   // KHTN 6A10 thu nhỏ bay lên góc trái, rồi chuyển sang ui.html
   var BIG    = 1.15;   // độ to lên khi ở chính giữa
 
